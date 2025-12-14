@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WKU Global - 원광대 국제교류처 업무 통합 관리</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FullCalendar -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+    
+    <!-- Pretendard Font (Modern Korean Font) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <style>
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; }
+        
+        /* Sidebar Active State - Modern Dark Theme */
+        .sidebar-active { 
+            background: linear-gradient(90deg, #4f46e5 0%, #4338ca 100%); 
+            color: white !important; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Calendar Customization */
+        .fc-toolbar-title { font-size: 1.25rem !important; font-weight: 700 !important; color: #1e293b; }
+        .fc-button-primary { background-color: #4f46e5 !important; border-color: #4f46e5 !important; }
+        .fc-button-active { background-color: #4338ca !important; border-color: #4338ca !important; }
+        .fc-daygrid-day-number { color: #475569; font-weight: 500; text-decoration: none; }
+        .fc-col-header-cell-cushion { color: #64748b; font-weight: 600; text-decoration: none; padding: 8px 0 !important; }
+        
+        /* Glassmorphism */
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(226, 232, 240, 0.8); }
+        
+        /* Folder Card Hover */
+        .folder-card:hover .folder-icon { transform: scale(1.1); color: #4f46e5; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar (Dark Modern Style) -->
+        <aside class="w-72 bg-slate-900 text-slate-300 hidden md:flex flex-col z-20 shadow-xl transition-all duration-300">
+            <div class="p-6 border-b border-slate-800 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0 ring-2 ring-white/20">
+                    <img src="images/wku_logo.png" alt="WKU Logo" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-white tracking-tight leading-tight">WKU Global</h1>
+                    <p class="text-xs text-slate-400 font-semibold tracking-wide uppercase mt-1">원광대 국제교류처</p>
+                </div>
+            </div>
+            
+            <div class="px-4 py-2 mt-4">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 pl-2">Main Menu</p>
+            </div>
+
+            <nav class="flex-1 px-4 space-y-1 overflow-y-auto">
+                <a href="#" onclick="showPage('dashboard')" id="nav-dashboard" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group sidebar-active">
+                    <i class="fa-solid fa-chart-pie w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">대시보드</span>
+                </a>
+                <a href="#" onclick="showPage('naver-calendar')" id="nav-naver-calendar" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-solid fa-calendar-days w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">국제처 일정 (네이버달력)</span>
+                </a>
+                <a href="#" onclick="showPage('tasks')" id="nav-tasks" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-solid fa-list-check w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">전체 업무 리스트</span>
+                </a>
+                <a href="#" onclick="showPage('kanban')" id="nav-kanban" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-solid fa-columns w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">칸반 보드</span>
+                </a>
+                <a href="#" onclick="showPage('calendar')" id="nav-calendar" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-regular fa-calendar-check w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">업무 달력</span>
+                </a>
+                
+                <div class="my-4 border-t border-slate-800 mx-2"></div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 pl-2">Management</p>
+
+                <a href="#" onclick="showPage('staff')" id="nav-staff" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-solid fa-users w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">국제교류처 업무분장</span>
+                </a>
+                <a href="#" onclick="showPage('stats')" id="nav-stats" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-solid fa-chart-simple w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">업무량 분석</span>
+                </a>
+                
+                <div class="my-4 border-t border-slate-800 mx-2"></div>
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 pl-2">Communication & Files</p>
+                
+                <a href="#" onclick="showPage('files')" id="nav-files" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-brands fa-google-drive w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">부서 자료실</span>
+                </a>
+
+                <a href="#" onclick="showPage('community')" id="nav-community" class="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+                    <i class="fa-solid fa-comments w-5 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">자유 의견 나눔</span>
+                </a>
+            </nav>
+            
+            <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+                <div class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-r from-slate-700 to-slate-600 flex items-center justify-center text-slate-300 font-bold border border-slate-600">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-200">관리자</p>
+                        <p class="text-xs text-slate-500">System Admin</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden relative bg-[#f8fafc]">
+            <!-- Header (Glassmorphism) -->
+            <header class="glass h-16 flex items-center justify-between px-8 shrink-0 z-10 sticky top-0">
+                <div class="flex items-center gap-4">
+                    <button class="md:hidden text-slate-500 hover:text-indigo-600 transition-colors">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <h2 id="page-title" class="text-xl font-bold text-slate-800 tracking-tight">대시보드</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openTaskModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 transition-all shadow-md hover:shadow-indigo-500/30 active:scale-95">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>새 업무 요청</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Scrollable Content Area -->
+            <div id="content-area" class="flex-1 overflow-y-auto p-8">
+                
+                <!-- 1. Dashboard Page -->
+                <div id="page-dashboard" class="space-y-8 max-w-7xl mx-auto">
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 mb-1">진행 중인 업무</p>
+                                    <h3 class="text-3xl font-bold text-slate-800" id="stat-in-progress">0</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
+                                    <i class="fa-solid fa-spinner text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 mb-1">대기 중인 업무</p>
+                                    <h3 class="text-3xl font-bold text-slate-800" id="stat-pending">0</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500 shadow-sm">
+                                    <i class="fa-regular fa-clock text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 mb-1">이번 주 마감</p>
+                                    <h3 class="text-3xl font-bold text-slate-800" id="stat-urgent">0</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 shadow-sm">
+                                    <i class="fa-solid fa-fire text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm font-medium text-slate-500 mb-1">완료된 업무</p>
+                                    <h3 class="text-3xl font-bold text-slate-800" id="stat-completed">0</h3>
+                                </div>
+                                <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 shadow-sm">
+                                    <i class="fa-solid fa-check text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
+                                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                    <i class="fa-regular fa-bell text-indigo-500"></i>
+                                    마감 임박 업무 (Top 5)
+                                </h3>
+                            </div>
+                            <div class="divide-y divide-slate-50 flex-1" id="urgent-tasks-list">
+                                <!-- JS Injected -->
+                                <div class="p-8 text-center text-slate-400 text-sm">로딩 중...</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col">
+                            <h3 class="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-indigo-500"></i>
+                                업무 상태 점유율
+                            </h3>
+                            <div class="flex-1 flex items-center justify-center min-h-[250px]">
+                                <canvas id="dashboard-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Tasks List Page -->
+                <div id="page-tasks" class="hidden space-y-6 max-w-7xl mx-auto">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-wrap gap-4 items-center justify-between">
+                        <div class="flex gap-3">
+                            <div class="relative">
+                                <select id="filter-assignee" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-3 pr-8 py-2.5 outline-none font-medium">
+                                    <option value="">모든 담당자</option>
+                                    <!-- JS Injected -->
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <select id="filter-status" class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block pl-3 pr-8 py-2.5 outline-none font-medium">
+                                    <option value="">모든 상태</option>
+                                    <option value="pending">대기 중</option>
+                                    <option value="in_progress">진행 중</option>
+                                    <option value="completed">완료</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative w-full md:w-80">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <i class="fa-solid fa-search text-slate-400"></i>
+                            </div>
+                            <input type="text" id="search-task" class="bg-slate-50 border border-slate-200 text-slate-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 p-2.5 outline-none transition-shadow focus:shadow-sm" placeholder="업무명 또는 내용 검색...">
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left text-slate-500">
+                                <thead class="text-xs text-slate-500 uppercase bg-slate-50/80 border-b border-slate-100">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-4 font-semibold">업무명</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold">담당자</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold">우선순위</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold">마감일</th>
+                                        <th scope="col" class="px-6 py-4 font-semibold">상태</th>
+                                        <th scope="col" class="px-6 py-4 text-right font-semibold">관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tasks-table-body" class="divide-y divide-slate-50">
+                                    <!-- JS Injected -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Calendar Page -->
+                <div id="page-calendar" class="hidden h-full max-w-7xl mx-auto">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm h-full">
+                        <div id="calendar" class="h-full"></div>
+                    </div>
+                </div>
+
+                <!-- 3.5. Naver Calendar Page -->
+                <div id="page-naver-calendar" class="hidden h-full max-w-7xl mx-auto">
+                    <div class="bg-white p-2 rounded-2xl border border-slate-100 shadow-sm h-full flex flex-col">
+                        <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                <img src="https://ssl.pstatic.net/static/calendar/2021/favicon_2021.ico" class="w-5 h-5" alt="Naver">
+                                네이버 공개 달력
+                            </h3>
+                            <a href="https://calendar.naver.com/publicCalendar?publishedKey=a0268f19976dbcd23139579593de7772431e260d1b4267a2681abbefd193404a4ec0ed0021620ebc" target="_blank" class="text-xs text-slate-500 hover:text-green-600 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> 새 창에서 열기
+                            </a>
+                        </div>
+                        <div class="flex-1 w-full bg-slate-50 rounded-b-xl overflow-hidden relative">
+                             <iframe src="https://calendar.naver.com/publicCalendar?publishedKey=a0268f19976dbcd23139579593de7772431e260d1b4267a2681abbefd193404a4ec0ed0021620ebc" 
+                                style="border: 0" width="100%" height="100%" frameborder="0" scrolling="no"></iframe>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Kanban Page -->
+                <div id="page-kanban" class="hidden h-full">
+                    <div class="flex gap-6 h-full overflow-x-auto pb-4 px-2">
+                        <!-- Kanban Columns (Same as before) -->
+                        <div class="flex-shrink-0 w-80 flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200/60 max-h-full">
+                            <div class="p-4 font-bold text-slate-600 flex justify-between items-center border-b border-slate-200/60 bg-slate-100 rounded-t-2xl">
+                                <span class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-amber-400"></div> 대기 중</span>
+                                <span class="bg-white text-slate-600 px-2.5 py-0.5 rounded-full text-xs shadow-sm border border-slate-100" id="count-pending">0</span>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-3 space-y-3" id="kanban-pending"></div>
+                        </div>
+                        <div class="flex-shrink-0 w-80 flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200/60 max-h-full">
+                             <div class="p-4 font-bold text-indigo-600 flex justify-between items-center border-b border-slate-200/60 bg-indigo-50/50 rounded-t-2xl">
+                                <span class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-indigo-500"></div> 진행 중</span>
+                                <span class="bg-white text-indigo-600 px-2.5 py-0.5 rounded-full text-xs shadow-sm border border-indigo-100" id="count-in-progress">0</span>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-3 space-y-3" id="kanban-in_progress"></div>
+                        </div>
+                         <div class="flex-shrink-0 w-80 flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200/60 max-h-full">
+                             <div class="p-4 font-bold text-emerald-600 flex justify-between items-center border-b border-slate-200/60 bg-emerald-50/50 rounded-t-2xl">
+                                <span class="flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-emerald-500"></div> 완료</span>
+                                <span class="bg-white text-emerald-600 px-2.5 py-0.5 rounded-full text-xs shadow-sm border border-emerald-100" id="count-completed">0</span>
+                            </div>
+                            <div class="flex-1 overflow-y-auto p-3 space-y-3" id="kanban-completed"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 5. Staff Info Page -->
+                <div id="page-staff" class="hidden space-y-6 max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">국제교류처 업무분장</h3>
+                            <p class="text-sm text-slate-500 mt-1">총 <span id="staff-count">0</span>명의 담당자가 업무를 수행하고 있습니다.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="openStaffModal()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all shadow-md">
+                                <i class="fa-solid fa-user-plus"></i>
+                                <span>직원 등록</span>
+                            </button>
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shadow-inner">
+                                <i class="fa-solid fa-user-group"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="staff-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- JS Injected Staff Cards -->
+                    </div>
+                </div>
+                
+                 <!-- 6. Stats Page -->
+                <div id="page-stats" class="hidden space-y-6 max-w-7xl mx-auto">
+                    <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+                        <h3 class="text-xl font-bold text-slate-800 mb-8 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-indigo-500"></i>
+                            부서원별 업무 분포 현황
+                        </h3>
+                        <div class="h-96 w-full">
+                            <canvas id="workload-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Drive Files Page -->
+                <div id="page-files" class="hidden space-y-6 max-w-7xl mx-auto">
+                    <div class="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                            <div>
+                                <h3 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                                    <i class="fa-brands fa-google-drive text-indigo-600"></i>
+                                    부서 공용 자료실
+                                </h3>
+                                <p class="text-slate-500 mt-1">국제교류처 업무 관련 파일을 저장하고 공유하는 공간입니다.</p>
+                            </div>
+                            <a href="https://drive.google.com/drive/folders/1lcGm7b9qINXmO2hNAL1_UD1Z3pSCvlZS?usp=sharing" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition-all shadow-lg hover:shadow-indigo-500/40">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <span>드라이브 바로가기 / 파일 업로드</span>
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <a href="https://drive.google.com/drive/folders/1lcGm7b9qINXmO2hNAL1_UD1Z3pSCvlZS?usp=sharing" target="_blank" class="folder-card bg-slate-50 rounded-2xl p-6 border border-slate-200 hover:bg-white hover:border-indigo-200 hover:shadow-lg transition-all cursor-pointer group">
+                                <div class="flex justify-between items-start mb-4">
+                                    <i class="fa-solid fa-folder folder-icon text-4xl text-amber-400 transition-transform duration-300"></i>
+                                    <span class="text-xs font-semibold bg-slate-200 text-slate-600 px-2 py-1 rounded">Shared</span>
+                                </div>
+                                <h4 class="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">국제교류팀 공유폴더</h4>
+                                <p class="text-sm text-slate-500 mt-1">업무 관련 문서, 행사 사진 등</p>
+                                <div class="mt-4 flex items-center text-xs text-slate-400">
+                                    <i class="fa-brands fa-google mr-1"></i> Google Drive
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. Community Page (New) -->
+                <div id="page-community" class="hidden space-y-6 max-w-4xl mx-auto">
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white shadow-lg mb-6">
+                        <h3 class="text-2xl font-bold mb-2 flex items-center gap-3">
+                            <i class="fa-solid fa-comments"></i> 자유 의견 나눔
+                        </h3>
+                        <p class="text-indigo-100">부서원들과 자유롭게 의견을 나누거나 건의사항을 남겨주세요. (익명 보장 가능)</p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
+                        <form id="comment-form" class="space-y-4">
+                            <div class="flex gap-4">
+                                <div class="w-1/4">
+                                    <input type="text" id="comment-author" class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="닉네임 (선택)">
+                                </div>
+                                <div class="flex-1">
+                                    <input type="text" id="comment-content" required class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="자유롭게 의견을 남겨주세요...">
+                                </div>
+                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-semibold transition-colors shadow-md">
+                                    등록
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="comments-list" class="space-y-4">
+                        <!-- JS Injected -->
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Create/Edit Task Modal -->
+    <div id="task-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden transform scale-100 transition-all border border-slate-200">
+            <!-- Task Form Content (Same as before) -->
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="text-lg font-bold text-slate-800" id="modal-title">새 업무 등록</h3>
+                <button onclick="closeTaskModal()" class="text-slate-400 hover:text-slate-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200">
+                    <i class="fa-solid fa-times text-lg"></i>
+                </button>
+            </div>
+            <form id="task-form" class="p-6 space-y-5">
+                <input type="hidden" id="task-id">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">업무 제목 <span class="text-rose-500">*</span></label>
+                    <input type="text" id="task-title" required class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="업무 제목">
+                </div>
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">담당자 <span class="text-rose-500">*</span></label>
+                        <select id="task-assignee" required class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                            <option value="">담당자 선택</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">마감 기한 <span class="text-rose-500">*</span></label>
+                        <input type="datetime-local" id="task-due-date" required class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">우선순위</label>
+                        <select id="task-priority" class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                            <option value="medium">중간 (Medium)</option>
+                            <option value="high">높음 (High)</option>
+                            <option value="low">낮음 (Low)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">요청자</label>
+                        <input type="text" id="task-requester" class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">상태</label>
+                    <select id="task-status" class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                        <option value="pending">대기 중</option>
+                        <option value="in_progress">진행 중</option>
+                        <option value="completed">완료</option>
+                        <option value="hold">보류</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">상세 내용</label>
+                    <textarea id="task-desc" rows="3" class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none"></textarea>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <div>
+                        <button type="button" id="btn-delete-task" onclick="handleTaskDeleteFromModal()" class="hidden px-4 py-2.5 text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-xl text-sm font-semibold transition-colors">
+                            <i class="fa-regular fa-trash-can mr-1"></i> 삭제
+                        </button>
+                    </div>
+                    <div class="flex gap-3">
+                        <button type="button" onclick="closeTaskModal()" class="px-5 py-2.5 text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-sm font-semibold transition-colors">취소</button>
+                        <button type="submit" class="px-5 py-2.5 text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl text-sm font-semibold transition-colors shadow-lg">저장하기</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Staff Modal (New) -->
+    <div id="staff-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden transform scale-100 transition-all border border-slate-200">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="text-lg font-bold text-slate-800">새 직원 등록</h3>
+                <button onclick="closeStaffModal()" class="text-slate-400 hover:text-slate-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200">
+                    <i class="fa-solid fa-times text-lg"></i>
+                </button>
+            </div>
+            <form id="staff-form" class="p-6 space-y-5">
+                <input type="hidden" id="staff-id">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">이름 <span class="text-rose-500">*</span></label>
+                    <input type="text" id="staff-name" required class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="예: 홍길동">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">직급 <span class="text-rose-500">*</span></label>
+                    <select id="staff-position" class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                        <option value="담당자">담당자</option>
+                        <option value="과장">과장</option>
+                        <option value="부처장">부처장</option>
+                        <option value="처장">처장</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">담당 업무</label>
+                    <textarea id="staff-role" rows="4" required class="w-full rounded-xl border-slate-200 border px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none" placeholder="담당 업무를 쉼표(,)나 줄바꿈으로 구분해 입력하세요"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeStaffModal()" class="px-5 py-2.5 text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl text-sm font-semibold transition-colors">취소</button>
+                    <button type="submit" class="px-5 py-2.5 text-white bg-slate-800 hover:bg-slate-900 rounded-xl text-sm font-semibold transition-colors shadow-lg">등록하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
